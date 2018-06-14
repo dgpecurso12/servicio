@@ -25,6 +25,7 @@ public class MyController extends AbstractVerticle {
         router.route().handler(BodyHandler.create().setUploadsDirectory("upload-folder"));
         router.get("/api/primero").handler(this::primero);
         router.post("/api/segundo").handler(this::segundo);
+        router.get("/api/suma").handler(this::suma);
         
         // Create the HTTP server and pass the "accept" method to the request handler.
         vertx.createHttpServer().requestHandler(router::accept).listen(
@@ -69,6 +70,47 @@ public class MyController extends AbstractVerticle {
         info.put("edad", "21");
         info.put("autos", autos);
         return Json.encodePrettily(info);
+    }
+    
+    private void suma(RoutingContext routingContext) {
+        HttpServerResponse response = routingContext.response();
+        HttpServerRequest request = routingContext.request();
+        String operacion = "suma";
+		String operandoA = request.getParam("a");
+		String operandoB = request.getParam("b");
+        String jsonResponse = calculadora(operacion,operandoA,operandoB,request);
+        response.setStatusCode(200).
+        putHeader("content-type", "application/json; charset=utf-8").
+        end(jsonResponse);
+    }
+    
+    private String calculadora(String tipo, String operandoA, String operandoB,HttpServerRequest request) {
+
+		Double r = new Double("0.0");
+		Double a = new Double("0.0");
+		Double b = new Double("0.0");
+		a = a.parseDouble(operandoA);
+		b = b.parseDouble(operandoB);
+
+		if(tipo.equals("suma")){
+			r = a+b;
+		}else if(tipo.equals("resta")){
+			r = a-b;
+		}else if(tipo.equals("multiplica")){
+			r = a*b;
+		}else if(tipo.equals("divide")){
+			r = a/b;
+		}else{
+			r=-1.0;
+		}
+	
+        Map<String, String> resultado = new HashMap<>();
+        resultado.put("operacion", tipo);
+    	resultado.put("resultado", ""+r);
+    	resultado.put("Local IP",request.localAddress().host());
+    	resultado.put("Remote IP",request.remoteAddress().host());
+    	
+        return Json.encodePrettily(resultado);
     }
 
 }
