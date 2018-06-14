@@ -20,12 +20,13 @@ public class MyController extends AbstractVerticle {
     public void start(Future<Void> fut) {
         logger.info("Inicializando Vertical");
         Router router = Router.router(vertx);
-        router.route("/*").handler(StaticHandler.create("assets")); // para invocar asi: http://localhost:8080/index.html
+        
         // el directorio "upload-folder" será creado en la misma ubicación que el jar fue ejecutado
         router.route().handler(BodyHandler.create().setUploadsDirectory("upload-folder"));
         router.get("/api/primero").handler(this::primero);
         router.post("/api/segundo").handler(this::segundo);
         router.get("/api/suma").handler(this::suma);
+        router.route("/*").handler(StaticHandler.create("assets")); // para invocar asi: http://localhost:8080/index.html
         
         // Create the HTTP server and pass the "accept" method to the request handler.
         vertx.createHttpServer().requestHandler(router::accept).listen(
